@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AERLUX — Dasturiy ta'minotda innovatsion yondashuv!</title>
+  <meta name="description" content="AERLUX — zamonaviy web saytlar, telegram botlar va web ilovalar. aerlux.uz" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --grad-a:#667eea; --grad-b:#764ba2;
+      --radius:20px;
+      --bg:#0b0e14; --muted:#0f1320; --text:#e9ecf1; --sub:#b8c0cc; --card:#101524; --line:#202636;
+      --ok:#22c55e; --err:#ef4444;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    :root.light {
+      --bg:#f6f7fb; --muted:#ffffff; --text:#0e1422; --sub:#5c6574; --card:#ffffff; --line:#e8eaf1;
+      --shadow: 0 8px 24px rgba(10, 14, 30, .08);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;scroll-behavior:smooth}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1200px;margin:0 auto;padding:0 20px}
+    .btn{
+      display:inline-flex;align-items:center;gap:.6rem;padding:.9rem 1.2rem;border-radius:14px;
+      background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); color:white; font-weight:700; letter-spacing:.3px;
+      box-shadow: 0 10px 30px rgba(118,75,162,.35); border:0; cursor:pointer; transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+    }
+    .btn:hover{transform:translateY(-2px);filter:saturate(1.1)}
+    .btn.ghost{background:transparent; color:var(--text); border:1px solid var(--line); box-shadow:none}
+    .chip{padding:.45rem .75rem;border-radius:999px;border:1px solid var(--line);color:var(--sub);font-weight:600;font-size:.8rem;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0));}
+
+    /* NAVBAR */
+    .navbar{
+      position:sticky; top:0; z-index:1000; backdrop-filter:saturate(180%) blur(14px);
+      background:linear-gradient(180deg, rgba(10,14,26,.75), rgba(10,14,26,.45)) padding-box;
+      border-bottom:1px solid var(--line);
+    }
+    :root.light .navbar{background:rgba(255,255,255,.7)}
+    .nav-wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+    .brand{display:flex;align-items:center;gap:.8rem}
+    .logo{
+      width:42px; height:42px; display:grid; place-items:center; border-radius:12px;
+      background:conic-gradient(from 30deg, var(--grad-a), var(--grad-b)); color:white; box-shadow:var(--shadow); font-weight:800;
+    }
+    .brand h1{font-size:1.05rem;margin:0}
+
+    /* Desktop menu */
+    .menu{display:flex;align-items:center;gap:18px}
+    .menu a{padding:.6rem .85rem;border-radius:12px;color:var(--sub);font-weight:600}
+    .menu a.active, .menu a:hover{color:var(--text); background:rgba(123,127,255,.08)}
+
+    /* Controls group */
+    .controls{display:flex;align-items:center;gap:10px}
+
+    /* Theme toggle */
+    .toggle{position:relative;width:52px;height:30px;border-radius:999px;background:var(--line);cursor:pointer;display:inline-flex;align-items:center;padding:4px;transition:background .2s ease}
+    .knob{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--grad-a),var(--grad-b));transform:translateX(0);transition:transform .25s ease}
+    :root.light .knob{transform:translateX(22px)}
+
+    /* Language controls */
+    .lang-inline{display:flex;gap:8px}
+    .lang-inline button{border:1px solid var(--line); background:var(--muted); color:var(--text); padding:.55rem .75rem; border-radius:12px; cursor:pointer; font-weight:700}
+    .lang-inline button.active{border-color:rgba(123,127,255,.7)}
+
+    .lang-mobile{display:none;position:relative}
+    .lang-current{border:1px solid var(--line);background:var(--muted);color:var(--text);padding:.55rem .75rem;border-radius:12px;font-weight:700}
+    .lang-dropdown{
+      position:absolute; right:0; top:110%; display:flex; flex-direction:column; gap:6px;
+      background:var(--muted); border:1px solid var(--line); border-radius:12px; padding:8px;
+      box-shadow:var(--shadow); min-width:110px; opacity:0; pointer-events:none; transform:translateY(-6px);
+      transition:opacity .18s ease, transform .18s ease;
+    }
+    .lang-dropdown.open{opacity:1; pointer-events:auto; transform:none}
+    .lang-dropdown button{border:1px solid var(--line); background:transparent; color:var(--text); padding:.45rem .6rem; border-radius:10px; text-align:left}
+    .lang-dropdown button:hover{border-color:rgba(123,127,255,.6)}
+
+    /* Burger + mobile panel */
+    .burger{display:none;width:40px;height:40px;border:1px solid var(--line);border-radius:12px;align-items:center;justify-content:center;cursor:pointer}
+    .burger span,.burger:before,.burger:after{content:"";display:block;width:18px;height:2px;background:var(--text);margin:3px 0;border-radius:2px}
+    .nav-panel{
+      display:none; border-top:1px solid var(--line); background:var(--muted); overflow:hidden;
+    }
+    .nav-panel.open{display:block; animation:slideDown .22s ease forwards}
+    .nav-panel a{display:block;padding:14px 20px;border-bottom:1px solid var(--line);color:var(--text);font-weight:600}
+    .nav-panel a:last-child{border-bottom:0}
+    @keyframes slideDown{from{opacity:0; transform:translateY(-8px)} to{opacity:1; transform:none}}
+
+    /* HERO + SECTIONS (as before) */
+    .hero{position:relative;padding:80px 0 40px; overflow:hidden;
+      background:
+        radial-gradient(800px 400px at 10% -10%, rgba(123,127,255,.15), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(157,123,255,.12), transparent 60%);
+      border-bottom:1px solid var(--line);}
+    .hero .row{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center}
+    .h-title{font-size:clamp(30px,6vw,58px);line-height:1.05;margin:10px 0 16px;font-weight:900;letter-spacing:-.4px}
+    .h-sub{font-size:clamp(16px,2.4vw,20px);color:var(--sub);max-width:760px}
+    .cta{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
+    .glass{border:1px solid var(--line); background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0)); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)}
+    .stat{display:flex;gap:14px;align-items:center}
+    .stat strong{font-size:28px}
+    .phone{aspect-ratio:9/16; width:100%; border-radius:30px; border:1px solid var(--line); overflow:hidden; background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); box-shadow:0 20px 60px rgba(0,0,0,.35); position:relative;}
+    .phone .screen{position:absolute;inset:10px;border-radius:22px;background:var(--muted);border:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:10px}
+    .msg{padding:10px 12px;border-radius:14px;max-width:85%;width:fit-content}
+    .msg.in{background:rgba(123,127,255,.15);border:1px solid var(--line)}
+    .msg.out{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35);align-self:flex-end}
+    @media (max-width:900px){ .hero .row{grid-template-columns:1fr} }
+
+    section{padding:72px 0;border-bottom:1px solid var(--line)}
+    .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:26px}
+    .sec-title{font-size:28px;margin:0}
+    .grid{display:grid;gap:16px}
+    .grid-4{grid-template-columns:repeat(4,1fr)}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    @media (max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:660px){.grid-4,.grid-3{grid-template-columns:1fr}}
+
+    .card{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:18px; transition:transform .2s ease, box-shadow .25s ease, border-color .2s ease; box-shadow:var(--shadow); position:relative; overflow:hidden}
+    .card:hover{transform:translateY(-4px); border-color:rgba(123,127,255,.5); box-shadow:0 18px 50px rgba(118,75,162,.25)}
+    .card .icon{font-size:26px}
+    .card h3{margin:8px 0 6px}
+    .card p{margin:0;color:var(--sub)}
+
+    .proj{display:flex;flex-direction:column;gap:14px}
+    .proj .meta{display:flex;gap:8px;align-items:center;color:var(--sub);font-size:.9rem}
+    .pill{background:rgba(123,127,255,.14); border:1px solid var(--line); padding:.25rem .6rem; border-radius:999px}
+    .list{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
+    .link{margin-top:10px;display:inline-flex;gap:8px;align-items:center;font-weight:700}
+    .link svg{width:18px;height:18px}
+
+    .contact-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
+    @media (max-width:900px){.contact-wrap{grid-template-columns:1fr}}
+    .form .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:600px){.form .row{grid-template-columns:1fr}}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .field input,.field textarea{background:var(--muted); border:1px solid var(--line); color:var(--text); border-radius:14px; padding:14px 14px; outline:none; transition:border .2s ease, box-shadow .2s ease}
+    .field textarea{min-height:130px;resize:vertical}
+    .field input:focus,.field textarea:focus{border-color:rgba(123,127,255,.7); box-shadow:0 0 0 6px rgba(123,127,255,.12)}
+    .note{font-size:.9rem;color:var(--sub)}
+    .socials{display:flex;gap:10px;margin-top:8px}
+    .socials a{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;border:1px solid var(--line)}
+    .socials a:hover{border-color:rgba(123,127,255,.7)}
+    footer{padding:24px 0;color:var(--sub);font-size:.95rem}
+
+    .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease, transform .7s ease}
+    .reveal.show{opacity:1;transform:none}
+
+    /* RESPONSIVE toggles */
+    @media (max-width:900px){
+      .menu{display:none}
+      .burger{display:flex}
+      .lang-inline{display:none}
+      .lang-mobile{display:block}
+    }
+
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size:.86rem; background:var(--muted); border:1px solid var(--line); padding:.2rem .45rem; border-radius:8px}
+    .corner{position:absolute; right:-60px; top:-60px; width:160px; height:160px; background:radial-gradient(closest-side, rgba(255,255,255,.06), transparent 70%); transform:rotate(35deg)}
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="container nav-wrap">
+      <div class="brand">
+        <div class="logo">A</div>
+        <div>
+          <h1>AERLUX</h1>
+          <div class="chip" data-i="slogan">Dasturiy ta'minotda innovatsion yondashuv!</div>
+        </div>
+      </div>
+
+      <!-- Desktop menu -->
+      <div class="menu" id="menu">
+        <a href="#home" class="active" data-i="nav.home">Bosh sahifa</a>
+        <a href="#services" data-i="nav.services">Xizmatlar</a>
+        <a href="#projects" data-i="nav.projects">Loyihalar</a>
+        <a href="#contact" data-i="nav.contact">Bog'lanish</a>
+      </div>
+
+      <div class="controls">
+        <!-- Lang desktop -->
+        <div class="lang-inline">
+          <button data-lang="uz" class="active">UZ</button>
+          <button data-lang="ru">RU</button>
+          <button data-lang="en">EN</button>
+        </div>
+        <!-- Lang mobile -->
+        <div class="lang-mobile">
+          <button id="langCurrent" class="lang-current" aria-haspopup="true" aria-expanded="false">UZ ▾</button>
+          <div id="langDropdown" class="lang-dropdown" role="menu" aria-hidden="true">
+            <button data-lang="uz" role="menuitem">UZ</button>
+            <button data-lang="ru" role="menuitem">RU</button>
+            <button data-lang="en" role="menuitem">EN</button>
+          </div>
+        </div>
+
+        <div class="toggle" id="themeToggle" title="Theme"><div class="knob"></div></div>
+
+        <!-- Burger (mobile) -->
+        <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="navPanel">
+          <span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile dropdown panel -->
+    <div id="navPanel" class="nav-panel" aria-hidden="true">
+      <a href="#home" data-i="nav.home">Bosh sahifa</a>
+      <a href="#services" data-i="nav.services">Xizmatlar</a>
+      <a href="#projects" data-i="nav.projects">Loyihalar</a>
+      <a href="#contact" data-i="nav.contact">Bog'lanish</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" id="home">
+    <div class="container row">
+      <div>
+        <div class="chip">aerlux.uz</div>
+        <h2 class="h-title" data-i="hero.title">Biz AERLUX — biznesingiz uchun kuchli raqamli yechimlar yaratamiz.</h2>
+        <p class="h-sub" data-i="hero.subtitle">Web saytlar, Telegram botlar, web va mini-ilovalar — barchasi bir joyda. Ishonchli, tez va nafis dizayn bilan.</p>
+        <div class="cta">
+          <a href="#contact" class="btn" data-i="hero.cta">Bog'lanish</a>
+          <a href="#projects" class="btn ghost" data-i="hero.view">Loyihalarni ko‘rish</a>
+        </div>
+        <div class="cta">
+          <div class="glass stat">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20 7L9 18l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div><strong>24/7</strong><div class="sub" style="color:var(--sub)" data-i="hero.support">Qo‘llab-quvvatlash</div></div>
+          </div>
+          <div class="glass stat">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12l2-2 4 4L19 6l2 2-12 12L3 12z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div><strong>99.9%</strong><div class="sub" style="color:var(--sub)" data-i="hero.quality">Sifat kafolati</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="phone reveal">
+          <div class="corner"></div>
+          <div class="screen">
+            <div class="msg in">Salom! AERLUXga xush kelibsiz 👋</div>
+            <div class="msg out">Bizga yozing — 1 ish kunida javob!</div>
+            <div class="msg in">Telegram botingizni 3 kunda ishga tushiramiz 🚀</div>
+            <div class="msg out">Ajoyib! Bog‘lanish formasi qayerda?</div>
+            <div class="msg in">Pastdagi bo‘limda — yuboring, guruhga keladi!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="container">
+      <div class="sec-head">
+        <h3 class="sec-title" data-i="services.title">Xizmatlar</h3>
+        <span class="chip" data-i="services.subtitle">Sizga mos to‘liq yechimlar</span>
+      </div>
+      <div class="grid grid-4">
+        <div class="card reveal"><div class="icon">🌐</div><h3 data-i="services.web.title">Web saytlar</h3><p data-i="services.web.desc">Tezkor, SEO-do‘st, zamonaviy dizaynli saytlar.</p></div>
+        <div class="card reveal"><div class="icon">🤖</div><h3 data-i="services.tg.title">Telegram botlar</h3><p data-i="services.tg.desc">Savdo, qo‘llab-quvvatlash va avtomatlashtirish botlari.</p></div>
+        <div class="card reveal"><div class="icon">📱</div><h3 data-i="services.webapp.title">Web ilovalar</h3><p data-i="services.webapp.desc">SPA/PWA, admin panellar, mikroxizmatlar.</p></div>
+        <div class="card reveal"><div class="icon">✨</div><h3 data-i="services.mini.title">Mini ilovalar</h3><p data-i="services.mini.desc">Mini-app va integratsiyalar — tez ishga tushirish.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="container">
+      <div class="sec-head">
+        <h3 class="sec-title" data-i="projects.title">Loyihalar</h3>
+        <span class="chip" data-i="projects.subtitle">So‘nggi ishlarimiz</span>
+      </div>
+      <div id="projectsGrid" class="grid grid-3"></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="sec-head">
+        <h3 class="sec-title" data-i="contact.title">Bog‘lanish</h3>
+        <div class="langline">
+          <span class="chip">Tel: <a href="tel:+998900010199">+998 90 001 01 99</a></span>
+          <span class="chip">Email: <a href="mailto:s.karimjonov99@gmail.com">s.karimjonov99@gmail.com</a></span>
+          <span class="chip">Web: <a href="https://aerlux.uz" target="_blank" rel="noopener">aerlux.uz</a></span>
+        </div>
+      </div>
+
+      <div class="contact-wrap">
+        <div class="card reveal">
+          <form id="contactForm" class="form">
+            <div class="row">
+              <div class="field"><label data-i="form.name">Ism</label><input type="text" name="name" placeholder="Ismingiz" required /></div>
+              <div class="field"><label>Email</label><input type="email" name="email" placeholder="example@mail.com" required /></div>
+            </div>
+            <div class="row">
+              <div class="field"><label data-i="form.phone">Telefon</label><input type="tel" name="phone" placeholder="+998 90 001 01 99" required /></div>
+              <div class="field"><label data-i="form.msg">Xabar</label><input type="text" name="message" placeholder="Qisqacha yozing..." required /></div>
+            </div>
+            <div class="field"><label data-i="form.more">Batafsil xabar</label><textarea name="details" placeholder="Loyihangiz haqida batafsil..."></textarea></div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <button class="btn" type="submit" id="submitBtn" data-i="form.submit">Yuborish</button>
+               
+            </div>
+            <div id="formStatus" class="note" style="margin-top:10px"></div>
+          </form>
+        </div>
+
+        <div class="card reveal">
+          <h3 data-i="contact.findus">Ijtimoiy tarmoqlar</h3>
+          <p class="note" data-i="contact.text">Yangiliklar va ishlarimizni kuzating:</p>
+          <div class="socials">
+            <a href="https://www.instagram.com/aerlux.uz" target="_blank" aria-label="Instagram">@</a>
+            <a href="https://t.me/AERLUXuz" target="_blank" aria-label="Telegram">TG</a>
+          </div>
+          <div style="margin-top:16px">
+            <div class="chip">Instagram: <a href="https://www.instagram.com/aerlux.uz" target="_blank">@aerlux.uz</a></div>
+            <div class="chip">Telegram: <a href="https://t.me/AERLUXuz" target="_blank">@AERLUXuz</a></div>
+          </div>
+          <div style="margin-top:16px">
+            <div class="chip">Telefon: <a href="tel:+998900010199">+998 90 001 01 99</a></div>
+            <div class="chip">Email: <a href="mailto:s.karimjonov99@gmail.com">s.karimjonov99@gmail.com</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div>© 2025 <strong>aerlux.uz</strong></div>
+      <div class="note">Built with ❤️ — AERLUX</div>
+    </div>
+  </footer>
+TG_ENDPOINT
+  <script>
+    // =========================
+    // Config
+    // =========================
+    const TELEGRAM_BOT_TOKEN = "8387512509:AAHh4icKyu5Qu6TEMt6Y4iU90MRfs86FwXY";
+    const TELEGRAM_CHAT_ID   = "@aerlux99"; // Guruh chat_id odatda manfiy bo‘ladi: -100xxxxxxxxxx
+    const TG_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+    // =========================
+    // i18n
+    // =========================
+    const I18N = {
+      uz:{slogan:"Dasturiy ta'minotda innovatsion yondashuv!",
+        "nav.home":"Bosh sahifa","nav.services":"Xizmatlar","nav.projects":"Loyihalar","nav.contact":"Bog'lanish",
+        "hero.title":"Biz AERLUX — biznesingiz uchun kuchli raqamli yechimlar yaratamiz.",
+        "hero.subtitle":"Web saytlar, Telegram botlar, web va mini-ilovalar — barchasi bir joyda. Ishonchli, tez va nafis dizayn bilan.",
+        "hero.cta":"Bog'lanish","hero.view":"Loyihalarni ko‘rish","hero.support":"Qo‘llab-quvvatlash","hero.quality":"Sifat kafolati",
+        "services.title":"Xizmatlar","services.subtitle":"Sizga mos to‘liq yechimlar",
+        "services.web.title":"Web saytlar","services.web.desc":"Tezkor, SEO-do‘st, zamonaviy dizaynli saytlar.",
+        "services.tg.title":"Telegram botlar","services.tg.desc":"Savdo, qo‘llab-quvvatlash va avtomatlashtirish botlari.",
+        "services.webapp.title":"Web ilovalar","services.webapp.desc":"SPA/PWA, admin panellar, mikroxizmatlar.",
+        "services.mini.title":"Mini ilovalar","services.mini.desc":"Mini-app va integratsiyalar — tez ishga tushirish.",
+        "projects.title":"Loyihalar","projects.subtitle":"So‘nggi ishlarimiz",
+        "contact.title":"Bog‘lanish",
+        "form.name":"Ism","form.phone":"Telefon","form.msg":"Xabar","form.more":"Batafsil xabar",
+        "form.submit":"Yuborish",
+        "contact.findus":"Ijtimoiy tarmoqlar","contact.text":"Yangiliklar va ishlarimizni kuzating:"},
+      ru:{slogan:"Инновационный подход в разработке ПО!",
+        "nav.home":"Главная","nav.services":"Услуги","nav.projects":"Проекты","nav.contact":"Контакты",
+        "hero.title":"Мы AERLUX — создаём мощные цифровые решения для вашего бизнеса.",
+        "hero.subtitle":"Сайты, Telegram-боты, веб и мини-приложения — всё в одном месте. Надёжно, быстро, эстетично.",
+        "hero.cta":"Связаться","hero.view":"Смотреть проекты","hero.support":"Поддержка","hero.quality":"Гарантия качества",
+        "services.title":"Услуги","services.subtitle":"Комплексные решения под вас",
+        "services.web.title":"Веб-сайты","services.web.desc":"Быстрые, SEO-дружелюбные, с современным дизайном.",
+        "services.tg.title":"Telegram-боты","services.tg.desc":"Продажи, поддержка и автоматизация.",
+        "services.webapp.title":"Веб-приложения","services.webapp.desc":"SPA/PWA, админ-панели, микросервисы.",
+        "services.mini.title":"Мини-приложения","services.mini.desc":"Интеграции и быстрый запуск.",
+        "projects.title":"Проекты","projects.subtitle":"Наши последние работы",
+        "contact.title":"Контакты",
+        "form.name":"Имя","form.phone":"Телефон","form.msg":"Сообщение","form.more":"Подробности",
+        "form.submit":"Отправить","form.note":"Данные формы отправятся в группу Telegram.",
+        "contact.findus":"Мы в соцсетях","contact.text":"Следите за новостями и кейсами:"},
+      en:{slogan:"Innovative approach in software!",
+        "nav.home":"Home","nav.services":"Services","nav.projects":"Projects","nav.contact":"Contact",
+        "hero.title":"We are AERLUX — building powerful digital products for your business.",
+        "hero.subtitle":"Websites, Telegram bots, web & mini-apps — all in one place. Reliable, fast, and elegantly designed.",
+        "hero.cta":"Contact us","hero.view":"View projects","hero.support":"Support","hero.quality":"Quality assurance",
+        "services.title":"Services","services.subtitle":"End-to-end solutions",
+        "services.web.title":"Websites","services.web.desc":"Fast, SEO-friendly, modern design.",
+        "services.tg.title":"Telegram bots","services.tg.desc":"Sales, support, and automation.",
+        "services.webapp.title":"Web apps","services.webapp.desc":"SPA/PWA, admin panels, microservices.",
+        "services.mini.title":"Mini apps","services.mini.desc":"Integrations and quick launch.",
+        "projects.title":"Projects","projects.subtitle":"Latest works",
+        "contact.title":"Contact",
+        "form.name":"Name","form.phone":"Phone","form.msg":"Message","form.more":"More details",
+        "form.submit":"Send","form.note":"On submit, data are posted to a Telegram group.",
+        "contact.findus":"Socials","contact.text":"Follow our updates and work:"}
+    };
+
+    // =========================
+    // Projects
+    // =========================
+    const PROJECTS = [
+      { title:"@Yordamchi99bot 🚖", date:"02.03.2025",
+        desc:{uz:"Haydovchi va mijozlar uchun qulay aloqa",ru:"Удобная связь для водителей и клиентов",en:"Convenient communication for drivers and clients"},
+        features:{uz:["Buyurtmalarni tezroq qabul qilish","Xizmatni tez topish","Tezkor aloqa"], ru:["Быстрый приём заказов","Быстрый поиск сервиса","Оперативная связь"], en:["Faster order intake","Quick service discovery","Instant communication"]},
+        link:"https://t.me/Yordamchi99bot"},
+      { title:"@week99bot 🚖", date:"16.10.2025",
+        desc:{uz:"Megapark Taxi haydovchilari uchun motivatsiya va yangiliklar boti",ru:"Бот мотивации и новостей для водителей Megapark Taxi",en:"Motivation & news bot for Megapark Taxi drivers"},
+        features:{uz:["Har kuni 07:00 da motivatsiya","@TaxiMegapark dan avtomatik yangiliklar"], ru:["Ежедневная мотивация в 07:00","Авто-новости из @TaxiMegapark"], en:["Daily motivation at 07:00","Auto news from @TaxiMegapark"]},
+        link:"https://t.me/week99bot"},
+      { title:"megaparktaxi.uz 🌐", date:"2025",
+        desc:{uz:"MegaPark Taxi haqida to'liq ma'lumot sayti",ru:"Полноценный сайт о MegaPark Taxi",en:"A complete website about MegaPark Taxi"},
+        features:{uz:["Telegram kanal","Lokatsiya","Tariflar","Ulanish forma","Aloqa"], ru:["Канал Telegram","Локация","Тарифы","Форма подключения","Контакты"], en:["Telegram channel","Location","Tariffs","Join form","Contacts"]},
+        link:"https://megaparktaxi.uz"}
+    ];
+
+    // =========================
+    // Helpers
+    // =========================
+    const $=(s,root=document)=>root.querySelector(s);
+    const $$=(s,root=document)=>[...root.querySelectorAll(s)];
+
+    // ---- Intersection Observer (declare BEFORE use; no TDZ)
+    var _observer;
+    function revealInit(){
+      if(_observer) _observer.disconnect();
+      _observer = new IntersectionObserver((entries)=>{
+        for(const e of entries){ if(e.isIntersecting){ e.target.classList.add("show"); _observer.unobserve(e.target); } }
+      }, { threshold:.14 });
+      $$(".reveal").forEach(el=>_observer.observe(el));
+    }
+
+    function renderProjects(lang="uz"){
+      const wrap=$("#projectsGrid");
+      wrap.innerHTML="";
+      for(const p of PROJECTS){
+        const card=document.createElement("div");
+        card.className="card reveal";
+        card.innerHTML=`
+          <div class="corner"></div>
+          <div class="proj">
+            <div class="meta"><span class="pill">${p.date}</span></div>
+            <h3>${p.title}</h3>
+            <p style="color:var(--sub)">${p.desc[lang]||p.desc.uz}</p>
+            <div class="list">
+              ${(p.features[lang]||p.features.uz).map(f=>`<span class="chip">${f}</span>`).join("")}
+            </div>
+            <a href="${p.link}" target="_blank" class="link">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M14 3h7v7M10 14l11-11M21 21H3V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Open</span>
+            </a>
+          </div>`;
+        wrap.appendChild(card);
+      }
+      revealInit();
+    }
+
+    function setLang(lang){
+      const dict=I18N[lang]||I18N.uz;
+      $$("[data-i]").forEach(el=>{
+        const key=el.getAttribute("data-i");
+        if(dict[key]) el.textContent=dict[key];
+      });
+      renderProjects(lang);
+      document.documentElement.lang=lang;
+      localStorage.setItem("aerlux_lang",lang);
+      // desktop lang buttons
+      $$(".lang-inline button").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
+      // mobile current label
+      const langCurrent=$("#langCurrent"); if(langCurrent) langCurrent.textContent=lang.toUpperCase()+" ▾";
+      document.title = (lang==="ru" ? "AERLUX — Инновационный подход в разработке ПО!"
+                   : lang==="en" ? "AERLUX — Innovative approach in software!"
+                                  : "AERLUX — Dasturiy ta'minotda innovatsion yondashuv!");
+    }
+
+    function toggleTheme(){
+      const isLight=document.documentElement.classList.toggle("light");
+      localStorage.setItem("aerlux_theme",isLight?"light":"dark");
+    }
+
+    // =========================
+    // NAV & LANG wiring
+    // =========================
+    const burger=$("#burger");
+    const navPanel=$("#navPanel");
+    burger.addEventListener("click", ()=>{
+      const open=navPanel.classList.toggle("open");
+      burger.setAttribute("aria-expanded", open?"true":"false");
+      navPanel.setAttribute("aria-hidden", open?"false":"true");
+    });
+    navPanel.querySelectorAll("a").forEach(a=>{
+      a.addEventListener("click", ()=>{
+        navPanel.classList.remove("open");
+        burger.setAttribute("aria-expanded","false");
+        navPanel.setAttribute("aria-hidden","true");
+      });
+    });
+
+    const langDropdown=$("#langDropdown");
+    const langCurrent=$("#langCurrent");
+    if(langCurrent){
+      langCurrent.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        const isOpen=langDropdown.classList.toggle("open");
+        langCurrent.setAttribute("aria-expanded", isOpen?"true":"false");
+        langDropdown.setAttribute("aria-hidden", isOpen?"false":"true");
+      });
+      document.addEventListener("click", ()=>langDropdown.classList.remove("open"));
+    }
+    // shared lang handlers (desktop + mobile)
+    $$('[data-lang]').forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const lang=btn.dataset.lang;
+        setLang(lang);
+        langDropdown && langDropdown.classList.remove("open");
+        langCurrent && langCurrent.setAttribute("aria-expanded","false");
+      });
+    });
+
+    // Theme + initial state
+    const savedTheme=localStorage.getItem("aerlux_theme");
+    if(savedTheme==="light") document.documentElement.classList.add("light");
+    $("#themeToggle").addEventListener("click",toggleTheme);
+
+    const savedLang=localStorage.getItem("aerlux_lang")||"uz";
+    setLang(savedLang);
+    renderProjects(savedLang);
+    revealInit();
+
+    // Active nav highlight
+    const sections=["home","services","projects","contact"].map(id=>document.getElementById(id));
+    const navLinks=$$("#menu a");
+    window.addEventListener("scroll",()=>{
+      let idx=0; const top=window.scrollY+140;
+      for(let i=0;i<sections.length;i++){ if(sections[i].offsetTop<=top) idx=i; }
+      navLinks.forEach((a,i)=>a.classList.toggle("active",i===idx));
+    });
+
+    // =========================
+    // Telegram form submission (with full URL-encoding)
+    // =========================
+    const form=$("#contactForm");
+    form.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const btn=$("#submitBtn");
+      const status=$("#formStatus");
+      const lang=localStorage.getItem("aerlux_lang")||"uz";
+
+      btn.disabled=true;
+      btn.textContent=(lang==="ru"?"Отправка...":lang==="en"?"Sending...":"Yuborilmoqda...");
+      status.textContent="";
+
+      const data=Object.fromEntries(new FormData(form).entries());
+      const msgText=[
+        `🆕 <b>Yangi murojaat (AERLUX)</b>`,
+        `🌐 <b>Til:</b> ${lang.toUpperCase()}`,
+        `👤 <b>Ism:</b> ${escapeHtml(data.name)}`,
+        `📧 <b>Email:</b> ${escapeHtml(data.email)}`,
+        `📞 <b>Telefon:</b> ${escapeHtml(data.phone)}`,
+        `💬 <b>Xabar:</b> ${escapeHtml(data.message)}`,
+        data.details?`🗒️ <b>Batafsil:</b> ${escapeHtml(data.details)}`:""
+      ].filter(Boolean).join("\n");
+
+      const url = `${TG_ENDPOINT}?chat_id=${encodeURIComponent(TELEGRAM_CHAT_ID)}&parse_mode=HTML&text=${encodeURIComponent(msgText)}`;
+
+      const setOk=()=>{
+        status.style.color="var(--ok)";
+        status.textContent=(lang==="ru"?"Успешно отправлено! Мы свяжемся с вами.":lang==="en"?"Sent successfully! We will contact you.":"Muvaffaqiyatli yuborildi! Tez orada aloqaga chiqamiz.");
+        form.reset();
+      };
+      const setErr=()=>{
+        status.style.color="var(--err)";
+        status.innerHTML=(lang==="ru"
+          ? `Не удалось отправить. Проверьте chat_id и права бота. Или напишите нам в <a href="https://t.me/AERLUXuz" target="_blank">Telegram</a>.`
+          : lang==="en"
+          ? `Failed to send. Check chat_id and bot permissions. Or message us on <a href="https://t.me/AERLUXuz" target="_blank">Telegram</a>.`
+          : `Yuborilmadi. chat_id va bot huquqlarini tekshiring. Yoki <a href="https://t.me/AERLUXuz" target="_blank">Telegram</a> orqali yozing.`);
+      };
+
+      try{
+        const r = await fetch(url,{method:"GET"});
+        const t = await r.text(); // diagnostika
+        console.log("[Telegram response]", r.status, t);
+        if(r.ok){ setOk(); }
+        else{
+          // fallback (no-cors + beacon)
+          await fetch(url,{method:"GET",mode:"no-cors"});
+          await new Promise(res=>{ const img=new Image(); img.onload=res; img.onerror=res; img.src=url; });
+          setOk();
+        }
+      }catch(e){
+        console.error(e);
+        try{
+          await new Promise(res=>{ const img=new Image(); img.onload=res; img.onerror=res; img.src=url; });
+          setOk();
+        }catch(_){ setErr(); }
+      }finally{
+        btn.disabled=false;
+        btn.textContent=I18N[lang]["form.submit"];
+      }
+    });
+
+    function escapeHtml(s=""){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+
+    // Subtle bg accent
+    document.addEventListener("scroll",()=>{
+      const y=Math.min(1,window.scrollY/600);
+      document.body.style.background=`linear-gradient(180deg, rgba(123,127,255,${0.04+y*0.08}), transparent), var(--bg)`;
+    },{passive:true});
+  </script>
+</body>
+</html>
